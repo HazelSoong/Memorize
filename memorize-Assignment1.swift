@@ -1,4 +1,4 @@
-//
+//  View
 //  memorize-Assignment1.swift
 //  Memorize
 //
@@ -8,34 +8,38 @@
 import SwiftUI
 
 struct memorize_Assignment1: View {
-   //@State var emojis = ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐"]
-    //var emojiFlag = ["🏳️‍🌈","🏳️‍⚧️","🇺🇳","🇦🇫","🇦🇽","🇦🇱"]
-    //var emojiAnimal = ["🐶"]
-   //@State var emojiCount = 8
+  
  @ObservedObject var viewModel: EmojiMemoryGame
     var body: some View {
        
-            
-        Label("Memorise!",systemImage: "")
-                .labelStyle(.titleOnly)
-                .font(.largeTitle)
-            
+       
+        VStack {
+            HStack {
+                Text(viewModel.themeName).font(.largeTitle)
+                Spacer()
+                Text("Score:\(viewModel.score)")
+            }.padding()
+           
             ScrollView{
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-                   
-                    ForEach(viewModel.cards) { card in CardView(card: card)
-                        .aspectRatio(2/3,contentMode: .fit)
-                        .onTapGesture {
-                            viewModel.choose(card)
-                    }
-                    
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
+                       
+                        ForEach(viewModel.cards) { card in CardView(card: card)
+                            .aspectRatio(2/3,contentMode: .fit)
+                            .onTapGesture {
+                                viewModel.choose(card)
+                        }
+                        
+                        }
                     }
                 }
-            }
-        
-            .foregroundColor(.red)
-            .buttonStyle(.bordered)
+            
+            .foregroundColor(viewModel.themeColor)
             .padding(.horizontal)
+            
+            Button{
+                viewModel.newGame()
+            } label: {Text("New Game").font(.largeTitle)}
+        }
     }}
        
 
@@ -69,8 +73,12 @@ struct CardView: View{
 struct memorize_Assignment1_Previews: PreviewProvider {
     static var previews: some View {
         let game = EmojiMemoryGame()
-        memorize_Assignment1(viewModel: game)
-            .preferredColorScheme(.light)
+        Group {
+            memorize_Assignment1(viewModel: game)
+                .preferredColorScheme(.light)
+            memorize_Assignment1(viewModel: game)
+                .preferredColorScheme(.light)
+        }
            
         memorize_Assignment1(viewModel: game)
             .preferredColorScheme(.dark)
