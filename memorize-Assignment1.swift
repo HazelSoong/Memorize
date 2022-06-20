@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct memorize_Assignment1: View {
-   @State var emojis = ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐"]
-    var emojiFlag = ["🏳️‍🌈","🏳️‍⚧️","🇺🇳","🇦🇫","🇦🇽","🇦🇱"]
-    var emojiAnimal = ["🐶"]
-   @State var emojiCount = 8
+   //@State var emojis = ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐"]
+    //var emojiFlag = ["🏳️‍🌈","🏳️‍⚧️","🇺🇳","🇦🇫","🇦🇽","🇦🇱"]
+    //var emojiAnimal = ["🐶"]
+   //@State var emojiCount = 8
+ @ObservedObject var viewModel: EmojiMemoryGame
     var body: some View {
-        VStack{
+       
             
         Label("Memorise!",systemImage: "")
                 .labelStyle(.titleOnly)
@@ -21,100 +22,57 @@ struct memorize_Assignment1: View {
             
             ScrollView{
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-                    //显示的是emojis
-                    ForEach(emojis[0..<emojiCount], id: \.self,content: {em in CardView(content: em).aspectRatio(2/3,contentMode: .fit)})
-                }.foregroundColor(.red)
+                   
+                    ForEach(viewModel.cards) { card in CardView(card: card)
+                        .aspectRatio(2/3,contentMode: .fit)
+                        .onTapGesture {
+                            viewModel.choose(card)
+                    }
+                    
+                    }
+                }
             }
         
-            Spacer()
-            HStack {
-                
-                vehicle
-                Spacer()
-                Flag
-                Spacer()
-                Animal
-            }
+            .foregroundColor(.red)
             .buttonStyle(.bordered)
             .padding(.horizontal)
-        }
-    
-        
-        .padding(.horizontal)
-    }
-    
-    var vehicle: some View {
-        Button(action: {
-            //显示的数量是Array的数量
-            emojiCount = emojis.count
-            
-            //下面是显示行->action做的事
-            emojis = emojis.shuffled()
-             },
-               label:{
-            VStack{
-                Image(systemName:"car").font(.largeTitle)
-                Text("Vehicle")
-                .font(.caption)
-               }} )
-    }
-    var Flag: some View {
-        Button(action: {
-            emojiCount = emojiFlag.count
-            emojis = emojiFlag.shuffled()
-        },
-               label:{
-            VStack{
-                Image(systemName:"flag").font(.largeTitle)
-                Text("Flag").font(.caption)
-               }} )
-    }
-    var Animal: some View {
-            Button(action: {
-                emojiCount = emojiAnimal.count
-                emojis = emojiAnimal.shuffled()
-            },
-                   label:{
-                VStack{
-                    Image(systemName:"pawprint").font(.largeTitle)
-                    //这么写也行
-                    //.font(.system(size: 10))
-                    Text("Animal").allowsTightening(true)
-                    .font(.caption)}} )
-    }
-    }
+    }}
        
 
 
 
 struct CardView: View{
-    var content:String
-    @State var isFaceUp : Bool = true
-    
+ 
+   let card: MemoryGame<String>.Card
     
     var body: some View{
         ZStack {
             let shape = RoundedRectangle(cornerRadius: 20)
-            if isFaceUp{
+            if card.isFaceUp{
             shape.fill().foregroundColor(.white)
             shape.strokeBorder(lineWidth: 3)
-            Text(content).font(.largeTitle)}
+                Text(card.content).font(.largeTitle)}
+            else if card.isMatched{
+                //if card matched, turn to clear
+                shape.opacity(0)
+            }
             else{
                 shape.fill()
             }
          
     }
-        .onTapGesture{isFaceUp = !isFaceUp}
+       // .onTapGesture{isFaceUp = !isFaceUp}
     }
     
 }
 
 struct memorize_Assignment1_Previews: PreviewProvider {
     static var previews: some View {
-        memorize_Assignment1()
+        let game = EmojiMemoryGame()
+        memorize_Assignment1(viewModel: game)
             .preferredColorScheme(.light)
            
-        memorize_Assignment1()
+        memorize_Assignment1(viewModel: game)
             .preferredColorScheme(.dark)
     }
 }
